@@ -411,7 +411,17 @@ function App() {
           <tbody>
             {items.map(item => (
               <tr key={item.ticker}>
-                <td><strong>{item.ticker}</strong></td>
+                <td>
+                  <a 
+                    href={`https://iol.invertironline.com/titulo/cotizacion/BCBA/${item.ticker}/graficador`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="ticker-link"
+                    title="Ver gráfico en IOL"
+                  >
+                    <strong>{item.ticker}</strong>
+                  </a>
+                </td>
                 <td>{item.quantity}</td>
                 <td>U$S {item.avg_price_usd.toFixed(2)}</td>
                 <td>U$S {item.current_price_usd.toFixed(2)}</td>
