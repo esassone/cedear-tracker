@@ -153,4 +153,85 @@ th {
   margin-top: 2rem;
 }
 
+/* Arbitrage Section Styles */
+.arbitrage-section {
+  margin-bottom: 2rem;
+}
+
+.section-header-collapsible {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+  transition: background-color 0.2s;
+}
+
+.section-header-collapsible:hover {
+  background-color: #f1f5f9;
+}
+
+.section-header-collapsible h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.opportunities-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.opportunity-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.opportunity-card h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.opportunity-card table {
+  box-shadow: none;
+  font-size: 0.875rem;
+}
+
+.scrollable-list {
+  max-height: 280px;
+  overflow-y: auto;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+/* Estilo para el scrollbar (Webkit) */
+.scrollable-list::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollable-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.scrollable-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.opportunity-card th, .opportunity-card td {
+  padding: 0.5rem;
+}
+
+.buy { border-top: 4px solid var(--success); }
+.sell { border-top: 4px solid var(--danger); }
+
+.gap-down { color: var(--success); font-weight: bold; }
+.gap-up { color: var(--danger); font-weight: bold; }
+
 

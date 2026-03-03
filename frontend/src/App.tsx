@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, L
 import { api } from './services/api';
 import { usePortfolio } from './services/usePortfolio';
 import TransactionForm from './components/TransactionForm';
+import ArbitrageOpportunities from './components/ArbitrageOpportunities';
 import type { Asset, Transaction } from './types';
 import './App.css';
 
@@ -21,6 +22,7 @@ function App() {
   const [filterTicker, setFilterTicker] = useState('');
   const [filterType, setFilterType] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>(undefined);
 
   const itemsPerPage = 10;
 
@@ -204,32 +206,53 @@ function App() {
         </div>
       </header>
 
-
       <section className="summary-grid">
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <h3>Total Cartera (ARS)</h3>
-            <DollarSign size={20} color="#64748b" />
+            <h3>Valor Total Cartera</h3>
+            <Briefcase size={20} color="#64748b" />
           </div>
-          <div className="value">${summary.total_ars.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</div>
-        </div>
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <h3>Total Cartera (USD) [${latestDollar.toLocaleString('es-AR')}]</h3>
-            <DollarSign size={20} color="#64748b" />
+          <div className="value" style={{ marginBottom: '0.5rem' }}>
+            U$S {summary.total_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          <div className="value">U$S {summary.total_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Equivalente:</span>
+              <span>${summary.total_ars.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Dólar BNA:</span>
+              <span>${latestDollar.toLocaleString('es-AR')}</span>
+            </div>
+          </div>
         </div>
+        
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <h3>Ganancia/Pérdida (USD)</h3>
             <TrendingUp size={20} color={summary.profit_usd >= 0 ? 'var(--success)' : 'var(--danger)'} />
           </div>
-          <div className={`value ${summary.profit_usd >= 0 ? 'profit-positive' : 'profit-negative'}`}>
+          <div className={`value ${summary.profit_usd >= 0 ? 'profit-positive' : 'profit-negative'}`} style={{ marginBottom: '0.5rem' }}>
             {summary.profit_usd >= 0 ? '+' : ''}U$S {summary.profit_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </div>
+          <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>SPY:</span>
+              <span className={summary.spy_profit_usd >= 0 ? 'profit-positive' : 'profit-negative'}>
+                {summary.spy_profit_usd >= 0 ? '+' : ''}U$S {summary.spy_profit_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Otros:</span>
+              <span className={summary.others_profit_usd >= 0 ? 'profit-positive' : 'profit-negative'}>
+                {summary.others_profit_usd >= 0 ? '+' : ''}U$S {summary.others_profit_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
           </div>
         </div>
       </section>
+
+      <ArbitrageOpportunities ownedTickers={items.map(i => i.ticker)} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
         <section className="card" style={{ marginBottom: 0 }}>

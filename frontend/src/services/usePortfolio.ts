@@ -74,8 +74,10 @@ export function usePortfolio(transactions: Transaction[], assets: Asset[], lates
         total_usd: acc.total_usd + (item.total_usd || 0),
         profit_ars: acc.profit_ars + (item.profit_ars || 0),
         profit_usd: acc.profit_usd + (item.profit_usd || 0),
+        spy_profit_usd: acc.spy_profit_usd + (item.ticker === 'SPY' ? (item.profit_usd || 0) : 0),
+        others_profit_usd: acc.others_profit_usd + (item.ticker !== 'SPY' ? (item.profit_usd || 0) : 0),
       }),
-      { total_ars: 0, total_usd: 0, profit_ars: 0, profit_usd: 0 }
+      { total_ars: 0, total_usd: 0, profit_ars: 0, profit_usd: 0, spy_profit_usd: 0, others_profit_usd: 0 }
     );
 
 

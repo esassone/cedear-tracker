@@ -11,7 +11,6 @@ export async function scrapeIOL() {
     const $ = cheerio.load(data);
     const db = await getDatabase();
     const date = new Date().toISOString();
-
     const results: any[] = [];
 
     $('#cotizaciones tbody tr').each((_, element) => {

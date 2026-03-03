@@ -23,14 +23,43 @@ export async function scrapeComafiRatios() {
       const ticker = rawTicker.split(/\s+/)[0];
       const ratioText = row.find('td:nth-child(8)').text().trim(); // Ratio es la 8va columna
 
-
-      // Extraer el número del ratio (ej. "20 : 1" -> 20)
-      const ratioMatch = ratioText.match(/(\d+)\s*:\s*1/);
-      if (ticker && ratioMatch && ratioMatch[1]) {
-        const ratio = parseInt(ratioMatch[1], 10);
+      // Extraer el número del ratio (ej. "20 : 1" -> 20, "1 : 2" -> 0.5)
+      const ratioMatch = ratioText.match(/(\d+)\s*:\s*(\d+)/);
+      if (ticker && ratioMatch) {
+        const x = parseInt(ratioMatch[1], 10);
+        const y = parseInt(ratioMatch[2], 10);
+        const ratio = x / y;
         ratios.push({ ticker, ratio });
       }
     });
+
+    // Forzar los tickers manuales para asegurar que sean correctos (prioridad sobre el scrape)
+    const manualFallbacks: { [key: string]: number } = {
+      'AAPL': 10,
+      'GOOGL': 58,
+      'MSFT': 30,
+      'NVDA': 48,
+      'AMZN': 144,
+      'META': 24,
+      'TSLA': 15,
+      'KO': 5,
+      'AAL': 1,
+      'MELI': 120,
+      'BABA': 9,
+      'PBR': 1,
+      'SPY': 40,
+      'QQQ': 40,
+      'DIA': 40,
+    };
+
+    for (const ticker of Object.keys(manualFallbacks)) {
+      const existingIndex = ratios.findIndex(r => r.ticker === ticker);
+      if (existingIndex !== -1) {
+        ratios[existingIndex].ratio = manualFallbacks[ticker];
+      } else {
+        ratios.push({ ticker, ratio: manualFallbacks[ticker] });
+      }
+    }
 
     console.log(`Scraped ${ratios.length} ratios from Comafi`);
 

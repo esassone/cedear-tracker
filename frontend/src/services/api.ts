@@ -55,6 +55,11 @@ export const api = {
   async getLatestDollar(): Promise<{ sell_price: number }> {
     const response = await axios.get(`${API_URL}/latest-dollar`);
     return response.data;
+  },
+
+  async getOpportunities(): Promise<any[]> {
+    const response = await axios.get(`${API_URL}/portfolio/opportunities`);
+    return response.data;
   }
 };
 

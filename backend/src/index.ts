@@ -9,6 +9,7 @@ import { scrapeIOL } from './services/scraper.js';
 import { scrapeComafiRatios } from './services/comafiScraper.js';
 import { scrapeBNADollarPrice } from './services/bnaScraper.js';
 import { importTransactionsFromCSV } from './services/transactionImporter.js';
+import { getArbitrageOpportunities } from './services/analysisService.js';
 
 dotenv.config();
 
@@ -159,6 +160,15 @@ app.post('/api/transactions/import', upload.single('file'), async (req, res) => 
     res.json({ message: 'Import completed', imported: result.imported, errors: result.errors });
   } catch (error) {
     res.status(500).json({ error: 'Failed to import transactions' });
+  }
+});
+
+app.get('/api/portfolio/opportunities', async (req, res) => {
+  try {
+    const opportunities = await getArbitrageOpportunities();
+    res.json(opportunities);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch arbitrage opportunities' });
   }
 });
 
