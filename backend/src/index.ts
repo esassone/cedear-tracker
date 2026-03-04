@@ -15,9 +15,26 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const upload = multer({ dest: 'uploads/' });
 
-app.use(cors());
+// Configuración de Multer reforzada
+const upload = multer({ 
+  dest: 'uploads/',
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Límite de 5MB
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only CSV files are allowed'));
+    }
+  }
+});
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  methods: ['GET', 'POST', 'DELETE'],
+}));
 app.use(express.json());
 
 app.get('/health', (req, res) => {
@@ -156,10 +173,14 @@ app.post('/api/transactions/import', upload.single('file'), async (req, res) => 
   }
   try {
     const result = await importTransactionsFromCSV(req.file.path);
-    fs.unlinkSync(req.file.path);
     res.json({ message: 'Import completed', imported: result.imported, errors: result.errors });
   } catch (error) {
+    console.error('Import error:', error);
     res.status(500).json({ error: 'Failed to import transactions' });
+  } finally {
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
   }
 });
 
