@@ -80,8 +80,14 @@ export function usePortfolio(transactions: Transaction[], assets: Asset[], lates
       { total_ars: 0, total_usd: 0, profit_ars: 0, profit_usd: 0, spy_profit_usd: 0, others_profit_usd: 0 }
     );
 
+    // 3. Calcular "Dólares si hubiera comprado USD"
+    const total_usd_if_bought_usd = transactions.reduce((acc, t) => {
+      const txCostArs = (t.quantity * (t.unit_price_ars || t.price_ars)) + (t.commission_ars || 0);
+      const txCostUsd = txCostArs / (t.dollar_rate || 1);
+      return t.type === 'buy' ? acc + txCostUsd : acc - txCostUsd;
+    }, 0);
 
-    return { items: portfolioItems, summary };
+    return { items: portfolioItems, summary: { ...summary, total_usd_if_bought_usd } };
   }, [transactions, assets]);
 
   return portfolio;

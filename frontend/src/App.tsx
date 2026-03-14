@@ -221,6 +221,10 @@ function App() {
               <span>${summary.total_ars.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Si hubieras comprado USD:</span>
+              <span style={{ fontWeight: 500 }}>U$S {(summary as any).total_usd_if_bought_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>Dólar BNA:</span>
               <span>${latestDollar.toLocaleString('es-AR')}</span>
             </div>

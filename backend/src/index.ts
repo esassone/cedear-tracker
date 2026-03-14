@@ -33,7 +33,7 @@ const upload = multer({
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  methods: ['GET', 'POST', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 app.use(express.json());
 
@@ -152,6 +152,47 @@ app.post('/api/transactions', async (req, res) => {
     res.status(201).json({ message: 'Transaction created successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to create transaction' });
+  }
+});
+
+app.put('/api/transactions/:id', async (req, res) => {
+  const { id } = req.params;
+  const { ticker, date, type, quantity, price_ars, commission_ars, owner, unit_price_ars, dollar_rate } = req.body;
+  if (!ticker || !date || !type || !quantity || !price_ars) {
+    res.status(400).json({ error: 'Missing required fields' });
+    return;
+  }
+  try {
+    const db = await getDatabase();
+    let asset = await db.get('SELECT id FROM assets WHERE ticker = ?', [ticker]);
+    if (!asset) {
+      const result = await db.run('INSERT INTO assets (ticker) VALUES (?)', [ticker]);
+      asset = { id: result.lastID };
+    }
+    const ownerValue = owner ? String(owner).slice(0, 10) : null;
+    let finalDollarRate = dollar_rate;
+    if (!finalDollarRate) {
+      const latestBNA = await db.get('SELECT sell_price FROM bna_dollar_prices WHERE date <= ? ORDER BY date DESC LIMIT 1', [date]);
+      finalDollarRate = latestBNA?.sell_price || null;
+    }
+    let marketPriceRow = await db.get(
+      'SELECT price_ars FROM prices WHERE asset_id = ? AND date(date) <= date(?) ORDER BY date DESC LIMIT 1',
+      [asset.id, date]
+    );
+    if (!marketPriceRow) {
+      marketPriceRow = await db.get('SELECT price_ars FROM prices WHERE asset_id = ? ORDER BY date DESC LIMIT 1', [asset.id]);
+    }
+    const marketPriceArs = marketPriceRow?.price_ars || null;
+    await db.run(
+      `UPDATE transactions 
+       SET asset_id = ?, date = ?, type = ?, quantity = ?, price_ars = ?, 
+           unit_price_ars = ?, market_price_ars = ?, commission_ars = ?, owner = ?, dollar_rate = ? 
+       WHERE id = ?`,
+      [asset.id, date, type, quantity, price_ars, unit_price_ars || price_ars, marketPriceArs, commission_ars || 0, ownerValue, finalDollarRate, id]
+    );
+    res.json({ message: 'Transaction updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update transaction' });
   }
 });
 
